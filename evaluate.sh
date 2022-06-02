@@ -12,4 +12,4 @@ pip install numpy==1.19.5
 pip install -e .
 
 }
-python -m swords.cli eval swords-v1.1_dev --result_json_fp ../nlp-exercise-semantics/swords-v1.1_dev_mygenerator.lsr.json
+python -m swords.cli eval swords-v1.1_dev --result_json_fp ../nlp-exercise-semantics/data/swords-v1.1_dev_mygenerator.lsr.json

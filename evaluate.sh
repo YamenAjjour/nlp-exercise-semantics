@@ -1,4 +1,4 @@
-for i in $(LC_ALL=C seq 0.1 0.1 1);do
+for i in $(LC_ALL=C seq 0.0001 0.0001 1);do
   echo "$i"
   python main.py --radius "$i"
   cd ../swords

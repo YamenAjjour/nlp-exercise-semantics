@@ -1,6 +1,3 @@
-1. Install sword under ../swords
-
-
-2. conda env create -f nlp-exercise-semantics-env
+1. To setup the project run ./setup.sh
 
 3. ./evaluate.sh

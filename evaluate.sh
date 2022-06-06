@@ -1,15 +1,7 @@
+for i in $(seq 0.1 0.1 1);do
+  echo $i
+  python main.py --radius $i
+  cd ../swords
 
-python main.py
-cd ../swords
-download()
-{
-virtualenv venv
-source venv/bin/active
-pip install nltk==3.5
-python -m nltk.downloader wordnet
-pip install requests==2.25.1
-pip install numpy==1.19.5
-pip install -e .
-
-}
-python -m swords.cli eval swords-v1.1_dev --result_json_fp ../nlp-exercise-semantics/data/swords-v1.1_dev_mygenerator.lsr.json
+  python -m swords.cli eval swords-v1.1_dev --result_json_fp ../nlp-exercise-semantics/data/swords-v1.1_dev_mygenerator.lsr.json
+done

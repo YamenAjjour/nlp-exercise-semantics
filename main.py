@@ -12,7 +12,7 @@ from baseline import generate_most_similar,generate_knearest,train_knearest
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('radius',help="radius to keighbour",type=float)
+    parser.add_argument('--radius',help="radius to keighbour",type=float)
     args=parser.parse_args()
     return args.radius
 
@@ -20,8 +20,8 @@ def generate_production(radius):
     print(f"trying radius {radius}")
     with gzip.open('data/swords-v1.1_dev.json.gz', 'r') as f:
         swords = json.load(f)
-    #glove_vectors = gensim.downloader.load('word2vec-google-news-300')
-    glove_vectors = gensim.downloader.load('glove-twitter-25')
+    glove_vectors = gensim.downloader.load('word2vec-google-news-300')
+    #glove_vectors = gensim.downloader.load('glove-twitter-25')
     knearest=train_knearest(glove_vectors,10,radius)
 
     result = {'substitutes_lemmatized': True, 'substitutes': {}}
@@ -40,5 +40,5 @@ def generate_production(radius):
     with open('data/swords-v1.1_dev_mygenerator.lsr.json', 'w') as f:
         f.write(json.dumps(result))
 
-
-generate_production(0.1)
+radius= parse_arguments()
+generate_production(radius)

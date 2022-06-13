@@ -1,0 +1,8 @@
+measure {
+ key: "lenient_f1c"
+ value: "0.1382689167120305"
+}
+measure {
+ key: "strict_f1c"
+ value: "0.1353583799626965"
+}

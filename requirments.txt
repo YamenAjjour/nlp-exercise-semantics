@@ -2,3 +2,5 @@ gensim
 tqdm
 nltk
 pandas
+torch
+transformers

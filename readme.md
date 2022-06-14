@@ -6,7 +6,8 @@ To generate lexical substitutes using a baseline
    python main.py --w2v --input data/dataset/lexical-substitution-data.csv --output data/word2vec/predictions.csv
 ```
    * *--wordnet*       to use wordnet synonyms as lexical substitutes
-   * *--w2v*          to use word2vec-based similarity metrics to find subsitutes
+   * *--w2v*           to use word2vec-based similarity metrics to find subsitutes
+   * *--distillbert*   to use distillbert to generate substitute as a fill-in-the-gap task
    * *--input*         path to the input of a lexical subsitution system 
    * *--ouptut*        path to the output of the lexical substitution system  
 

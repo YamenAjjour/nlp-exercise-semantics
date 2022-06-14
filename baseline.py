@@ -1,7 +1,8 @@
-import random
 import gensim
-
+import random
+import torch
 from gensim.test.utils import datapath
+from transformers import AutoTokenizer
 from sklearn.neighbors import NearestNeighbors
 from scipy import spatial
 from nltk.corpus import wordnet as wn
@@ -100,3 +101,12 @@ def generate_wordnet(target,pos_tag):
         synonyms = [synonym.replace("_"," ") for synonym in synonyms]
         all_lemmas.extend(synonyms)
     return all_lemmas,[1 for _ in all_lemmas]
+
+def generate_distillbert(target, context,model,tokenizer):
+    context=context.replace(target,"[MASK]")
+    inputs = tokenizer(context, return_tensors="pt")
+    token_logits = model(**inputs).logits
+    mask_token_index = torch.where(inputs["input_ids"] == tokenizer.mask_token_id)[1]
+    mask_token_logits = token_logits[0, mask_token_index, :]
+    top_10_tokens = torch.topk(mask_token_logits, 10, dim=1).indices[0].tolist()
+    return top_10_tokens,range(0,10), torch.topk(mask_token_logits, 10, dim=1).values

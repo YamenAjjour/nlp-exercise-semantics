@@ -1,8 +1,8 @@
 measure {
  key: "lenient_f1c"
- value: "0.1382689167120305"
+ value: "29.55408918216357"
 }
 measure {
  key: "strict_f1c"
- value: "0.1353583799626965"
+ value: "22.271411544355527"
 }

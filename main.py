@@ -35,8 +35,8 @@ def generate_substitutes(wordnet, w2v, path_input, path_output):
     """
     df_swords=pd.read_csv(path_input,sep=",",quotechar='"',encoding="utf-8")
     if w2v:
-        glove_vectors = gensim.downloader.load('word2vec-google-news-300')
-
+        #glove_vectors = gensim.downloader.load('word2vec-google-news-300')
+        glove_vectors = gensim.downloader.load('glove-twitter-25')
         knearest=train_knearest(glove_vectors,10,0.4)
 
     target_ids=[]

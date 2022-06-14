@@ -21,8 +21,9 @@ To generate lexical substitutes using a baseline
 
 ```
 target_id,substitute,score
-t:0bc0ac48c9799fcae60eb1b1f6bc63a29ccc4d53,come,1
-t:0bc0ac48c9799fcae60eb1b1f6bc63a29ccc4d53,come up,1
+"t:0bc0ac48c9799fcae60eb1b1f6bc63a29ccc4d53","come","1"
+"t:0bc0ac48c9799fcae60eb1b1f6bc63a29ccc4d53","come up","1"
+"t:0bc0ac48c9799fcae60eb1b1f6bc63a29ccc4d53","arrive","1"
 
 ```
 The evaluation script produces lenient f1 score and strict f1 score for **conceivable** substitutes, i.e., score > 0.1

@@ -10,6 +10,14 @@ def lemmatize(token,pos):
     return lemmatizer.lemmatize(token, pos=pos).lower().strip()
 
 def parse_groundtruth(groundtruth_path,is_acceptable):
+    """
+    parse the dataset as given in csv file format "target", "pos","substitute","score","target_id","context"
+    Following swards the groundtruth can be loaded in two modes acceptable or cinceivable where the substitutes are filtered
+    according to their scores. Accpeptable >= 0.5 and Conceivable >= 0.1
+    :param groundtruth_path: path to the csv file which is delimmted with comma and doulbe quoted and contains the dataset
+    :param is_acceptable: a boolea for whether tolad substitutes with score >= 0.5 or with score >= 0.1
+    :return: a a dictionary of dictationries that contains the substitutes part of speech of the target and its lemma, as well as all substitutes.
+    """
     groundtruth = {}
     df_groundtruth = pd.read_csv(groundtruth_path,sep=",",quotechar='"',encoding="utf-8")
     for target_id, df_substitutes in df_groundtruth.groupby('target_id'):
@@ -31,6 +39,10 @@ def parse_groundtruth(groundtruth_path,is_acceptable):
 
 
 def parse_predictions(predictions_path):
+    """
+    :param predictions_path:
+    :return: A dictionary containing for each traget id a list of substitutes.
+    """
     predictions = {}
     with open(predictions_path, 'r') as predictions_file:
         results = json.load(predictions_file)
@@ -40,7 +52,16 @@ def parse_predictions(predictions_path):
     return predictions
 
 
-def eval(predictions,groundtruth,is_lenient=False):
+def eval(predictions,groundtruth,k=10,is_lenient=False):
+    """
+    Produce F1 score @ k either in strict or lenient mode for the predictions of a system. F1 lenient ignore substitutes produced
+    by a system which are not in the groundtruth lemmas for the target. F1 strict does not have any restrictions.
+    :param predictions: A dictionary containing for each traget id a list of substitutes.
+    :param groundtruth: a dictionary containing for each target id a dictionary containing the subsitutes, all substitutes
+    , pos and lemma of the traget
+    :param is_lenient: Boolean for whether to calcualte lenient f1 score or strict f1 score
+    :return: a string in Tira format
+    """
     p_denominator= 0
     numerator = 0
     r_denominator = 0
@@ -57,13 +78,13 @@ def eval(predictions,groundtruth,is_lenient=False):
 
         if is_lenient:
             filtred_substitutes=[substitute_lemma for substitute_lemma  in substitutes if substitute_lemma in all_substitutes]
-            substitutes = set(filtred_substitutes[:10])
+            substitutes = set(filtred_substitutes[:k])
         else:
-            substitutes  = set(substitutes[:10])
+            substitutes  = set(substitutes[:k])
 
         numerator += len([x for x in substitutes if x in true_substitutes])
         p_denominator += len(substitutes)
-        r_denominator += min(len(true_substitutes),10)
+        r_denominator += min(len(true_substitutes),k)
 
     p = numerator/p_denominator
     r = numerator/r_denominator
@@ -78,9 +99,9 @@ def eval(predictions,groundtruth,is_lenient=False):
 def parse_input():
     """
     read the files given as parameters and load the newline-delimited stings
-    :return: a tripe with   [0] a list of predicted labels. 1 if Y and 0 if N
-                            [1] a list of true labels. 1 if Y and 0 if N
-                            [3] the output Path
+    :return: a tripe with   [0] path to the prediction file
+                            [1] path to the groundtruth file
+                            [3] the output file Path
     """
     parser = ArgumentParser()
     parser.add_argument("-p", "--predictions", help="path to the dir holding the predicted predictions.json")
@@ -99,6 +120,11 @@ def parse_input():
             output_path)
 
 def to_tira_measure(measure):
+    """
+    Convert a dictionary containing {"metric":"metric-value"} to tira format
+    :param measure:
+    :return:
+    """
     measure_str = ""
     for metric in measure:
         measure_str = measure_str + f'measure {{\n key: "{metric}"\n value: "{measure[metric]}"\n}}\n'

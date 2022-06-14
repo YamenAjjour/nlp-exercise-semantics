@@ -20,7 +20,7 @@ from main import *
 
 class TestEvaluation(unittest.TestCase):
     def create_dataset(self):
-        path = "data/swords-v1.1-dev.csv"
+        path = "data/dataset/swords-v1.1-dev.csv"
         df_dataset = pd.read_csv(path,sep=",",quotechar='"')
         target_id = 't:b2759a395bae8d9d501e991417c77f46cc4a1e9d'
         df_sample = df_dataset[df_dataset['target_id']==target_id]
@@ -29,7 +29,7 @@ class TestEvaluation(unittest.TestCase):
         df_sample.to_csv('data/sample.csv',sep=",",quotechar='"',encoding="utf-8",index=False)
     def predict_substitutes(self):
 
-        generate_production(True,False,self.path_groundtruth_sample,self.path_predictions)
+        generate_substitutes(True, False, self.path_groundtruth_sample, self.path_predictions)
         predictions = parse_predictions(self.path_predictions)
         groundtruth = parse_groundtruth(self.path_groundtruth_sample,is_acceptable=False)
         evaluation = eval(predictions,groundtruth,True)

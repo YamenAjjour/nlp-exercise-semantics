@@ -9,17 +9,17 @@ lemmatizer = WordNetLemmatizer()
 def lemmatize(token,pos):
     return lemmatizer.lemmatize(token, pos=pos).lower().strip()
 
-def parse_groundtruth(groundtruth_path,is_acceptable):
+def parse_groundtruth(path_groundtruth, is_acceptable):
     """
     parse the dataset as given in csv file format "target", "pos","substitute","score","target_id","context"
     Following swards the groundtruth can be loaded in two modes acceptable or cinceivable where the substitutes are filtered
     according to their scores. Accpeptable >= 0.5 and Conceivable >= 0.1
-    :param groundtruth_path: path to the csv file which is delimmted with comma and doulbe quoted and contains the dataset
+    :param path_groundtruth: path to the csv file which is delimmted with comma and doulbe quoted and contains the dataset
     :param is_acceptable: a boolea for whether tolad substitutes with score >= 0.5 or with score >= 0.1
     :return: a a dictionary of dictationries that contains the substitutes part of speech of the target and its lemma, as well as all substitutes.
     """
     groundtruth = {}
-    df_groundtruth = pd.read_csv(groundtruth_path,sep=",",quotechar='"',encoding="utf-8")
+    df_groundtruth = pd.read_csv(path_groundtruth, sep=",", quotechar='"', encoding="utf-8")
     for target_id, df_substitutes in df_groundtruth.groupby('target_id'):
         pos = df_substitutes['pos'].values[0]
         target = df_substitutes['target'].values[0]
@@ -38,21 +38,21 @@ def parse_groundtruth(groundtruth_path,is_acceptable):
     return groundtruth
 
 
-def parse_predictions(predictions_path):
+def parse_predictions(path_predictions):
     """
-    :param predictions_path:
+    :param path_predictions:
     :return: A dictionary containing for each traget id a list of substitutes.
     """
+    df_predictions = pd.read_csv(path_predictions,sep=",",quotechar='"')
     predictions = {}
-    with open(predictions_path, 'r') as predictions_file:
-        results = json.load(predictions_file)
-        for target_id in results['substitutes']:
-            substitutes = results['substitutes'][target_id]
-            predictions[target_id]=substitutes
+    for target_id, df_substitutes in df_predictions.groupby('target_id'):
+        substitutes = list(df_substitutes['substitute'].values)
+        scores = list(df_substitutes['score'].values)
+        predictions[target_id]=list(zip(substitutes,scores))
     return predictions
 
 
-def eval(predictions,groundtruth,k=10,is_lenient=False):
+def eval(predictions,groundtruth,k,is_lenient):
     """
     Produce F1 score @ k either in strict or lenient mode for the predictions of a system. F1 lenient ignore substitutes produced
     by a system which are not in the groundtruth lemmas for the target. F1 strict does not have any restrictions.
@@ -71,6 +71,8 @@ def eval(predictions,groundtruth,k=10,is_lenient=False):
         true_substitutes = set(groundtruth[target_id]['substitutes'])
         target_pos = groundtruth[target_id]['pos']
         target_lemma = groundtruth[target_id]['target_lemma']
+        if target_id not in predictions:
+            continue
         predicted_substitutes = predictions[target_id]
         sorted_substitutes = sorted(predicted_substitutes,key= lambda x: -x[1])
         lemmatized_substitutes = [lemmatize(x[0],target_pos) for x in  sorted_substitutes]
@@ -110,7 +112,7 @@ def parse_input():
     args = parser.parse_args()
 
     groundtruth_path = Path(args.truth) / 'swords-v1.1-dev.csv'
-    predictions_path = Path(args.predictions) / 'predictions.json'
+    predictions_path = Path(args.predictions) / 'predictions.csv'
     output_path = Path(args.output) / 'evaluation.protext'
 
 
@@ -136,8 +138,8 @@ if __name__ == "__main__":
     predictions_path, groundtruth_path, output_path = parse_input()
     predictions = parse_predictions(predictions_path)
     groundtruth = parse_groundtruth(groundtruth_path,is_acceptable=False)
-    evaluation_strict = eval(predictions,groundtruth,False)
-    evaluation = eval(predictions,groundtruth,True)
+    evaluation_strict = eval(predictions,groundtruth,10,False)
+    evaluation = eval(predictions,groundtruth,10,True)
     evaluation.update(evaluation_strict)
     measure_str = to_tira_measure(evaluation)
     with open(output_path , 'w') as of:

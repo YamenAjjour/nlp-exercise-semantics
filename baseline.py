@@ -18,7 +18,7 @@ def train_knearest(w2v,k,radius):
     Train a knearest model starting from a gensim word2vec model and k
     :param w2v: word2vec model
     :param k: count of neighbours to find
-    :return:
+    :return: a pair of two lists: subsitutes and scores
     """
     print("training")
     all_vect=get_vectors(w2v)
@@ -27,7 +27,14 @@ def train_knearest(w2v,k,radius):
     knearest.fit(all_vect)
     return knearest
 
-def generate_knearest( target, w2v, knearest, target_pos=None):
+def generate_knearest( target, w2v, knearest, ):
+    """
+    Generate substitutes for a target using a knearest neighbors model
+    :param target: target word
+    :param w2v: a gensim word2vec model
+    :param knearest: a trainied knearest model on the same word2vec model
+    :return: a pair of two lists: subsitutes and scores
+    """
     if target in w2v.index_to_key:
         target_vector = w2v[target]
         distances, indices = knearest.kneighbors([target_vector])
@@ -36,21 +43,19 @@ def generate_knearest( target, w2v, knearest, target_pos=None):
         similarities=[]
         for distance in normalized_distances:
             similarities.append((1 - distance) * 100)
-        tokens = [w2v.index_to_key[index] for index in indices[0]]
+        subsitutes = [w2v.index_to_key[index] for index in indices[0]]
     else:
-        return list(zip([],[]))
-    return list(zip(tokens,similarities))
+        return [],[]
+    return subsitutes,similarities
 
 
-def generate_most_similar(context, target, target_offset, glove_vectors,target_pos=None):
-    """Produces _substitutes_ for _target_ span within _context_
+def generate_most_similar( target, glove_vectors):
+    """Produces _substitutes_ for target span within using standard gensim method
 
     Args:
-      context: A text context, e.g. "My favorite thing about her is her straightforward honesty.".
-      target: The target word, e.g. "straightforward"
-      target_offset: The character offset of the target word in context, e.g. 35
-      target_pos: The UD part-of-speech (https://universaldependencies.org/u/pos/) for the target, e.g. "ADJ"
 
+      target: The target word, e.g. "straightforward"
+      glove_vectors: is a word2vec model loaded by gensim
     Returns:
       A list of substitutes and scores e.g. [(sincere, 80.), (genuine, 80.), (frank, 70), ...]
     """
@@ -61,10 +66,14 @@ def generate_most_similar(context, target, target_offset, glove_vectors,target_p
         results=[]
     scores = [pair[1]*100 for pair in results]
     substitutes = [pair[0] for pair in results]
-    return list(zip(substitutes, scores))
+    return substitutes, scores
 
 def get_wordnet_pos(pos_tag):
-
+    """
+    Map a part of speech tag to wordnet format
+    :param pos_tag:
+    :return: wordnet compliant part of speech tag
+    """
     if pos_tag.startswith('a'):
         return wn.ADJ
     elif pos_tag.startswith('v'):
@@ -80,9 +89,9 @@ def get_wordnet_pos(pos_tag):
 def generate_wordnet(target,pos_tag):
     """
     Generate synoyms using wordnet by getting all synsets of the target and producing all words of these synsets
-    :param word: the target word
-    :param pos_tag: the target pos
-    :return:
+    :param word: the target word to generate substitutes for
+    :param pos_tag: the target part of speech tag 'a' for adjective, 'v' for verb, 'n' for noun, 'r' for adeverb
+    :return: subsitutes and scores as lists
     """
     all_lemmas=[]
     wordnet_pos = get_wordnet_pos(pos_tag)
@@ -90,4 +99,4 @@ def generate_wordnet(target,pos_tag):
         synonyms = [token for token in synset.lemma_names() if token != target]
         synonyms = [synonym.replace("_"," ") for synonym in synonyms]
         all_lemmas.extend(synonyms)
-    return list(zip(all_lemmas,[1 for _ in all_lemmas]))
+    return all_lemmas,[1 for _ in all_lemmas]

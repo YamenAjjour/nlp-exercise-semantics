@@ -64,7 +64,7 @@ def generate_substitutes(wordnet, w2v, distillbert, path_input, path_output):
         all_substitutes.extend(subsitutes)
         all_scores.extend(scores)
         target_ids.extend([target_id for _ in subsitutes])
-
+    print(len(target_ids),len(all_substitutes),len(all_scores))
     df=pd.DataFrame({'target_id':target_ids,'substitute':all_substitutes,'score':all_scores})
 
     df.to_csv(path_output,sep=",",quotechar='"',encoding="utf-8",quoting=csv.QUOTE_ALL,index=False,columns=['target_id','substitute','score'])

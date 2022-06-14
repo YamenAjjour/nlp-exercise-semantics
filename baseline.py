@@ -109,4 +109,5 @@ def generate_distillbert(target, context,model,tokenizer):
     mask_token_index = torch.where(inputs["input_ids"] == tokenizer.mask_token_id)[1]
     mask_token_logits = token_logits[0, mask_token_index, :]
     top_10_tokens = torch.topk(mask_token_logits, 10, dim=1).indices[0].tolist()
-    return top_10_tokens,range(0,10), torch.topk(mask_token_logits, 10, dim=1).values
+    top_10_tokens = [tokenizer.decode([token]) for token in top_10_tokens]
+    return top_10_tokens, torch.topk(mask_token_logits, 10, dim=1).values[0].tolist()

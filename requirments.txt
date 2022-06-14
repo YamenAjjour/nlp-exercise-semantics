@@ -4,3 +4,4 @@ nltk
 pandas
 torch
 transformers
+sklearn

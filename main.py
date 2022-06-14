@@ -20,7 +20,7 @@ def parse_arguments():
     parser.add_argument("-i", "--input", help="path to the input of a lexical subsitution system")
     parser.add_argument("-o", "--output", help="path to the output of the lexical substitution system  ")
     args=parser.parse_args()
-    return args.wordnet, args.w2v, args.input ,args.output
+    return args.wordnet, args.w2v, args.distillbert, args.input ,args.output
 
 def generate_substitutes(wordnet, w2v, distillbert, path_input, path_output):
     """
@@ -70,5 +70,5 @@ def generate_substitutes(wordnet, w2v, distillbert, path_input, path_output):
     df.to_csv(path_output,sep=",",quotechar='"',encoding="utf-8",quoting=csv.QUOTE_ALL,index=False,columns=['target_id','substitute','score'])
 
 if __name__ == "__main__":
-    wordnet,w2v, path_input, path_output = parse_arguments()
-    generate_substitutes(wordnet, w2v, path_input, path_output)
+    wordnet,w2v, distillbert, path_input, path_output = parse_arguments()
+    generate_substitutes(wordnet, w2v, distillbert, path_input, path_output)
